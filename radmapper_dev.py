@@ -6,27 +6,27 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 
-# Constants
-SCREEN_WIDTH, SCREEN_HEIGHT = 800,600
-GRID_SIZE = 16
-GRID_WIDTH, GRID_HEIGHT = SCREEN_WIDTH // GRID_SIZE, SCREEN_HEIGHT // GRID_SIZE
-CAR_COLOR = (255, 0, 0)
-WALL_COLOR = (0, 0, 255)
-SOURCE_COLOR = (0, 0, 0)  # Invisible color (same as background)
-FONT_COLOR = (255, 255, 255)
-FONT_SIZE = 24
-CELL_SIZE = 16
-GROUND_MAPPING_TIME = 45
-AERIAL_MAPPING_TIME = 25
-
 # Initialize Pygame
 pygame.init()
 pygame.mixer.init()
 pygame.font.init()
 
 # Create the screen
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 pygame.display.set_caption("Radmapper V1.4 (now with attenuation!)")
+
+SCREEN_HEIGHT = screen.get_height()
+SCREEN_WIDTH = screen.get_width()
+GRID_SIZE = 30
+GRID_WIDTH, GRID_HEIGHT = SCREEN_WIDTH // GRID_SIZE, SCREEN_HEIGHT // GRID_SIZE
+CAR_COLOR = (255, 0, 0)
+WALL_COLOR = (0, 0, 255)
+SOURCE_COLOR = (0, 0, 0)  # Invisible color (same as background)
+FONT_COLOR = (255, 255, 255)
+FONT_SIZE = 24
+CELL_SIZE = GRID_SIZE
+GROUND_MAPPING_TIME = 35
+AERIAL_MAPPING_TIME = 20
 
 # Load textures
 wall_image = pygame.image.load("textures/redbrick.png")
@@ -46,7 +46,7 @@ roof_image = pygame.transform.scale(roof_image, (CELL_SIZE, CELL_SIZE))
 man_front_image = pygame.transform.scale(man_front_image, (CELL_SIZE*2, CELL_SIZE*2))
 man_back_image = pygame.transform.scale(man_back_image, (CELL_SIZE*2, CELL_SIZE*2))
 drone_image = pygame.transform.scale(drone_image, (CELL_SIZE*3, CELL_SIZE*3))
-trefoil_image = pygame.transform.scale(trefoil_image, (CELL_SIZE, CELL_SIZE))
+trefoil_image = pygame.transform.scale(trefoil_image, (CELL_SIZE*5, CELL_SIZE*5))
 
 # Game states
 MENU, GROUND_MAPPING, AERIAL_MAPPING, GAME_OVER, SHOW_SOURCE, CALL_MAIN, SHOW_MAPS, QUIT = 0, 1, 2, 3, 4, 5, 6, 7
@@ -145,8 +145,8 @@ def distance_squared_3D(x1, y1, x2, y2):
 
 def draw_counts(counts, x, y):
     font = pygame.font.Font("font/PixeloidMono-d94EV.ttf", 16)
-    text1 = font.render(f"CPS:", True, (255,20,147))
-    text2 = font.render(f"{counts:.2f}", True, (255,20,147))
+    text1 = font.render(f"CPS:", True, (255,0,0))
+    text2 = font.render(f"{counts:.2f}", True, (255,0,0))
     screen.blit(text1, (x - text1.get_width(), y))
     screen.blit(text2, (x - text2.get_width(), y + text1.get_height()))
 
@@ -167,8 +167,8 @@ def draw_timer(time_left, starting_time):
 def draw_menu():
     font = pygame.font.Font("font/PixeloidMono-d94EV.ttf", 2 * FONT_SIZE)
     text1 = font.render("Radmapper V1.4", True, (255,105,180))
-    screen.blit(text1, (SCREEN_WIDTH // 2 - text1.get_width() // 2, SCREEN_HEIGHT - (SCREEN_HEIGHT/80) * text1.get_height()))
-
+    screen.blit(text1, (SCREEN_WIDTH // 2 - text1.get_width() // 2, SCREEN_HEIGHT - (SCREEN_HEIGHT/70) * text1.get_height()))
+    screen.blit(trefoil_image, (SCREEN_WIDTH // 2 - trefoil_image.get_width() // 2, SCREEN_HEIGHT // 2 - trefoil_image.get_height() - GRID_SIZE*3))
 def draw_show_maps():
     screen.fill((0,0,0))
     font = pygame.font.Font("font/PixeloidMono-d94EV.ttf", FONT_SIZE)
@@ -474,7 +474,7 @@ def main():
         if current_state == GROUND_MAPPING:
             clock.tick(10)  # Adjust the speed of the game
         elif current_state == AERIAL_MAPPING:
-            clock.tick(30)  # Adjust the speed of the game
+            clock.tick(25)  # Adjust the speed of the game
         else:
             clock.tick(60)
         prev_state = current_state
