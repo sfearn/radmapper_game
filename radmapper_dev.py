@@ -13,7 +13,7 @@ pygame.font.init()
 
 # Create the screen
 screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
-pygame.display.set_caption("Radmapper V1.4 (now with attenuation!)")
+pygame.display.set_caption("Radmapper V1.5 (now fullscreen!)")
 
 SCREEN_HEIGHT = screen.get_height()
 SCREEN_WIDTH = screen.get_width()
@@ -166,16 +166,16 @@ def draw_timer(time_left, starting_time):
 
 def draw_menu():
     font = pygame.font.Font("font/PixeloidMono-d94EV.ttf", 2 * FONT_SIZE)
-    text1 = font.render("Radmapper V1.4", True, (255,105,180))
+    text1 = font.render("Radmapper V1.5", True, (255,105,180))
     screen.blit(text1, (SCREEN_WIDTH // 2 - text1.get_width() // 2, SCREEN_HEIGHT - (SCREEN_HEIGHT/70) * text1.get_height()))
-    screen.blit(trefoil_image, (SCREEN_WIDTH // 2 - trefoil_image.get_width() // 2, SCREEN_HEIGHT // 2 - trefoil_image.get_height() - GRID_SIZE*3))
+    screen.blit(trefoil_image, (SCREEN_WIDTH // 2 - trefoil_image.get_width() // 2, SCREEN_HEIGHT - ((SCREEN_HEIGHT/70) * text1.get_height()) + trefoil_image.get_height()//3))
 def draw_show_maps():
-    screen.fill((0,0,0))
+    screen.fill((255,255,255))
     font = pygame.font.Font("font/PixeloidMono-d94EV.ttf", FONT_SIZE)
-    text1 = font.render("Ground Map", True, FONT_COLOR)
-    text2 = font.render("Aerial Map", True, FONT_COLOR)
-    screen.blit(text1, (SCREEN_WIDTH // 4 - text1.get_width() // 2, SCREEN_HEIGHT - 8 * text1.get_height()))
-    screen.blit(text2, (3 * SCREEN_WIDTH // 4 - text2.get_width() // 2, SCREEN_HEIGHT - 8 * text2.get_height()))
+    text1 = font.render("Ground Map", True, (0,0,0))
+    text2 = font.render("Aerial Map", True, (0,0,0))
+    screen.blit(text1, (SCREEN_WIDTH // 4 - text1.get_width() // 2, 2 * text1.get_height()))
+    screen.blit(text2, (3 * SCREEN_WIDTH // 4 - text2.get_width() // 2, 2 * text2.get_height()))
 
 
 def main():
@@ -275,9 +275,19 @@ def main():
                 pygame.quit()
                 sys.exit()
 
-            if current_state == MENU or current_state == GAME_OVER or current_state == SHOW_SOURCE or current_state == SHOW_MAPS:
+            if current_state == MENU:
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     for button in buttons:
+                        if button.rect.collidepoint(event.pos):
+                            current_state = button.action
+            if current_state == GAME_OVER:
+                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    for button in buttons[4:]:
+                        if button.rect.collidepoint(event.pos):
+                            current_state = button.action
+            if current_state == SHOW_SOURCE or current_state == SHOW_MAPS:
+                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    for button in buttons[5:]:
                         if button.rect.collidepoint(event.pos):
                             current_state = button.action
 
@@ -387,7 +397,7 @@ def main():
         if current_state == GAME_OVER:
             if heatmap_image is None:
                 # Save the heatmap plot as an image
-                plt.Figure(figsize=(GRID_WIDTH, GRID_HEIGHT))
+                plt.Figure(figsize=(GRID_HEIGHT, GRID_HEIGHT))
                 plt.imshow(count_data+1, cmap='hot', interpolation='nearest', norm=LogNorm())
                 plt.colorbar().set_label('Radiation Intensity (counts per second)')
                 plt.title('Your Radiation Heat Map')
@@ -457,13 +467,14 @@ def main():
 
             ground_map = pygame.image.load(
                 f'plots/heatmap_ground_withsource.png')  # Load the heatmap image
-            ground_map = pygame.transform.scale(ground_map, (SCREEN_WIDTH//2,  SCREEN_HEIGHT//2))
+            ground_map = pygame.transform.scale(ground_map, (SCREEN_WIDTH//2,  SCREEN_HEIGHT/1.5))
 
             aerial_map = pygame.image.load(
                 f'plots/heatmap_aerial_withsource.png')
-            aerial_map = pygame.transform.scale(aerial_map, (SCREEN_WIDTH//2, SCREEN_HEIGHT//2))
-            screen.blit(ground_map, (0, 0))  # Display the heatmap image
-            screen.blit(aerial_map, (SCREEN_WIDTH//2, 0))  # Display the heatmap image
+            aerial_map = pygame.transform.scale(aerial_map, (SCREEN_WIDTH//2, SCREEN_HEIGHT//1.5))
+
+            screen.blit(aerial_map, (SCREEN_WIDTH//2, SCREEN_HEIGHT//6))  # Display the heatmap image
+            screen.blit(ground_map, (0, SCREEN_HEIGHT//6))  # Display the heatmap image
 
         if current_state == CALL_MAIN:
             current_state = MENU
