@@ -178,6 +178,19 @@ def draw_show_maps():
     screen.blit(text2, (3 * SCREEN_WIDTH // 4 - text2.get_width() // 2, 2 * text2.get_height()))
 
 
+current_volume = 0.5  # Initial music volume
+
+def increase_volume():
+    global current_volume
+    current_volume = min(1.0, current_volume + 0.05)  # Increase by 10%
+    pygame.mixer.music.set_volume(current_volume)
+
+def decrease_volume():
+    global current_volume
+    current_volume = max(0.0, current_volume - 0.05)  # Decrease by 10%
+    pygame.mixer.music.set_volume(current_volume)
+
+
 def main():
     clock = pygame.time.Clock()
     car_x, car_y = GRID_WIDTH // 2, GRID_HEIGHT - 2
@@ -270,6 +283,8 @@ def main():
     prev_pos = (0, 0)
 
     while not game_over:
+        keys = pygame.key.get_pressed()
+
         for event in pygame.event.get():
             if current_state == QUIT:
                 pygame.quit()
@@ -308,6 +323,13 @@ def main():
                         button.draw()
                 draw_menu()
 
+        if keys[pygame.K_ESCAPE]:
+            current_state = QUIT
+        if keys[pygame.K_LEFTBRACKET]:
+            decrease_volume()
+        if keys[pygame.K_RIGHTBRACKET]:
+            increase_volume()
+
         if current_state == MENU:
             if prev_state != current_state:
                 # Countdown timer setup
@@ -315,6 +337,7 @@ def main():
                 pygame.mixer.music.stop()
                 pygame.mixer.music.load("music/menu.mp3")  # Replace "music.mp3" with your music file's path
                 pygame.mixer.music.play(-1)  # -1 plays the music in an infinite loop
+                pygame.mixer.music.set_volume(0.5)
 
         if current_state == GROUND_MAPPING:
             if prev_state != current_state:
@@ -323,6 +346,7 @@ def main():
                 pygame.mixer.music.stop()
                 pygame.mixer.music.load("music/adventure.mp3")  # Replace "music.mp3" with your music file's path
                 pygame.mixer.music.play(-1)  # -1 plays the music in an infinite loop
+                pygame.mixer.music.set_volume(current_volume)
                 car_image = man_front_image
                 starting_time = GROUND_MAPPING_TIME
 
@@ -333,11 +357,11 @@ def main():
                 pygame.mixer.music.stop()
                 pygame.mixer.music.load("music/platforming.mp3")  # Replace "music.mp3" with your music file's path
                 pygame.mixer.music.play(-1)  # -1 plays the music in an infinite loop
+                pygame.mixer.music.set_volume(current_volume)
                 car_image = drone_image
                 starting_time = AERIAL_MAPPING_TIME
 
         if current_state == GROUND_MAPPING or current_state == AERIAL_MAPPING:
-            keys = pygame.key.get_pressed()
             new_car_x, new_car_y = car_x, car_y
             if keys[pygame.K_LEFT]:
                 new_car_x -= 1
