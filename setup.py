@@ -4,6 +4,8 @@ import sys
 if sys.platform == "win32":
     base = "Win32GUI"
 
+sys.setrecursionlimit(5000)
+
 target = Executable(
     script="radmapper.py",
     base=base,

@@ -12,7 +12,9 @@ pygame.mixer.init()
 pygame.font.init()
 
 # Create the screen
-screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+infoObject = pygame.display.Info()
+screen = pygame.display.set_mode((infoObject.current_w*0.9, infoObject.current_h*0.9), pygame.RESIZABLE)
+#screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 pygame.display.set_caption("Radmapper V1.5 (now fullscreen!)")
 
 SCREEN_HEIGHT = screen.get_height()
@@ -363,15 +365,15 @@ def main():
 
         if current_state == GROUND_MAPPING or current_state == AERIAL_MAPPING:
             new_car_x, new_car_y = car_x, car_y
-            if keys[pygame.K_LEFT]:
+            if keys[pygame.K_LEFT] or keys[pygame.K_a]:
                 new_car_x -= 1
-            if keys[pygame.K_RIGHT]:
+            if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
                 new_car_x += 1
-            if keys[pygame.K_UP]:
+            if keys[pygame.K_UP] or keys[pygame.K_w]:
                 new_car_y -= 1
                 if current_state == GROUND_MAPPING:
                     car_image = man_back_image
-            if keys[pygame.K_DOWN]:
+            if keys[pygame.K_DOWN] or keys[pygame.K_s]:
                 new_car_y += 1
                 if current_state == GROUND_MAPPING:
                     car_image = man_front_image
