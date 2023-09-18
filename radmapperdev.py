@@ -93,17 +93,20 @@ def draw_source(source_x, source_y, CELL_SIZE, source_image, screen):
 
 def draw_timer(time_left, starting_time, screen, FONT_SIZE, SCREEN_WIDTH):
     font = pygame.font.Font("font/PixeloidMono-d94EV.ttf", FONT_SIZE)
-    text = font.render(f"Battery:{100 * time_left // starting_time:.1f} %", True, (0, 0, 140))
+    text = font.render(f"Battery:{100 * time_left // starting_time:.0f} %", True, (0, 0, 140))
     #rectangle = pygame.Rect(SCREEN_WIDTH - (text.get_width() + 10), 10, text.get_width() + 10, text.get_height() + 10)
     #screen.blit(rectangle, (SCREEN_WIDTH - (5 + text.get_width()), text.get_height() // 2))
     screen.blit(text, (SCREEN_WIDTH - (5 + text.get_width()), text.get_height() // 2))
 
 
 def draw_counts(counts, x, y, screen):
-    #pygame.draw.rect(screen, (0, 0, 0), (3, 3, 40, 40))
-    font = pygame.font.Font("font/PixeloidMono-d94EV.ttf", 16)
-    text1 = font.render(f"CPS: {counts:.2f}", True, (255, 0, 0))
-    screen.blit(text1, (text1.get_width(),text1.get_height()))
+    font = pygame.font.Font("font/PixeloidMono-d94EV.ttf", 24)
+    text1 = font.render(f"CPS: {counts:.0f}", True, (255, 0, 0))
+
+    # black rectangle with grey fill
+    pygame.draw.rect(screen, (0, 0, 0), (text1.get_height()//2, -2+text1.get_height()//2, text1.get_width() + 10, text1.get_height() + 10))
+    pygame.draw.rect(screen, (150, 150, 150), (2+text1.get_height()//2, text1.get_height()//2, text1.get_width() + 6, text1.get_height() + 6))
+    screen.blit(text1, (6+text1.get_height()//2, text1.get_height()//2))
 
 
 def draw_menu(FONT_SIZE, SCREEN_WIDTH, SCREEN_HEIGHT, screen, trefoil_image):
@@ -189,7 +192,7 @@ def main(screen):
         Button("Show Maps", SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT // 2 + 110, 200, 40, SHOW_MAPS),
         Button("Quit", SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT // 2 + 160, 200, 40, QUIT),
         Button("Show Source", SCREEN_WIDTH // 2 - 320, SCREEN_HEIGHT - 50, 200, 40, SHOW_SOURCE),
-        Button("Return to Menu", SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT - 50, 200, 40, CALL_MAIN),
+        Button("Return to Menu", SCREEN_WIDTH - 210, SCREEN_HEIGHT - 50, 200, 40, CALL_MAIN),
     ]
 
     current_volume = 0.5  # Initial music volume
@@ -279,29 +282,29 @@ def main(screen):
     simple_walls = []
 
     left_wall_x = GRID_WIDTH // 2 - 6
-    left_wall_y = [i for i in range(GRID_HEIGHT // 2 - 2, GRID_HEIGHT // 2 + 2)]
+    left_wall_y = [i for i in range(GRID_HEIGHT // 2 - 1, GRID_HEIGHT // 2 + 2)]
     for i in left_wall_y:
         simple_walls.append((left_wall_x, i))
 
     right_wall_x = GRID_WIDTH // 2 + 6
-    right_wall_y = [i for i in range(GRID_HEIGHT // 2 - 2, GRID_HEIGHT // 2 + 2)]
+    right_wall_y = [i for i in range(GRID_HEIGHT // 2 - 1, GRID_HEIGHT // 2 + 2)]
     for i in right_wall_y:
         simple_walls.append((right_wall_x, i))
 
     front_wall_y = GRID_HEIGHT//2 - 6
-    front_wall_x = [i for i in range(GRID_WIDTH // 2 - 2 , GRID_WIDTH // 2 + 2)]
+    front_wall_x = [i for i in range(GRID_WIDTH // 2 - 1 , GRID_WIDTH // 2 + 2)]
     for i in front_wall_x:
         simple_walls.append((i, front_wall_y))
 
     back_wall_y = GRID_HEIGHT//2 + 6
-    back_wall_x = [i for i in range(GRID_WIDTH // 2 - 2, GRID_WIDTH // 2 + 2)]
+    back_wall_x = [i for i in range(GRID_WIDTH // 2 - 1, GRID_WIDTH // 2 + 2)]
     for i in back_wall_x:
         simple_walls.append((i, back_wall_y))
-
 
     game_over = False
     prev_state = 10
     a = 0
+    prev_pos = (0, 0)
 
     while not game_over:
         keys = pygame.key.get_pressed()
@@ -346,6 +349,11 @@ def main(screen):
                         if button.rect.collidepoint(event.pos):
                             current_state = button.action
             if current_state == SHOW_SOURCE or current_state == SHOW_MAPS:
+                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    for button in buttons[6:]:
+                        if button.rect.collidepoint(event.pos):
+                            current_state = button.action
+            if current_state == GROUND_MAPPING or current_state == AERIAL_MAPPING or current_state == TEACHING_MODE:
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     for button in buttons[6:]:
                         if button.rect.collidepoint(event.pos):
@@ -447,7 +455,7 @@ def main(screen):
 
             # Update count data for the heat map and timer
             if current_state == GROUND_MAPPING or current_state == TEACHING_MODE:
-                bg = np.random.poisson(0.7)
+                bg = np.random.poisson(7)
                 if current_state == GROUND_MAPPING:
                     line_of_sight = has_line_of_sight(car_x, car_y, source_x, source_y, building_features)
                 else:
@@ -459,7 +467,7 @@ def main(screen):
                     count_data[car_y, car_x] = min(10000, bg + np.random.poisson(
                         10000 / distance_squared(car_x, car_y, source_x, source_y)))
             elif current_state == AERIAL_MAPPING:
-                bg = np.random.poisson(0.7 / 3)
+                bg = np.random.poisson(7 / 3)
                 count_data[car_y, car_x] = min(10000, bg + np.random.poisson(
                     10000 / distance_squared_3D(car_x, car_y, source_x, source_y)))
 
@@ -475,14 +483,12 @@ def main(screen):
                     draw_wall(wall[0], wall[1], wall_image, GRID_SIZE, screen)
             draw_car(car_x, car_y, car_image, CELL_SIZE, screen)
 
-            if current_state == GROUND_MAPPING or current_state == TEACHING_MODE:
-                draw_counts(count_data[car_y, car_x], car_x * GRID_SIZE, car_y * GRID_SIZE, screen)
-            elif current_state == AERIAL_MAPPING:
-                a-=1
-                if a <= 0:
-                    counts = count_data[car_y, car_x]
-                    a = 10
-                draw_counts(counts, car_x * GRID_SIZE, car_y * GRID_SIZE, screen)
+            if prev_pos != (car_x, car_y):
+                counts = count_data[car_y, car_x]
+
+            draw_counts(counts, car_x * GRID_SIZE, car_y * GRID_SIZE, screen)
+
+            prev_pos = (car_x, car_y)
 
             draw_timer(time_left / 1000, starting_time, screen, FONT_SIZE, SCREEN_WIDTH)  # Draw countdown timer
 
@@ -579,6 +585,20 @@ def main(screen):
         if current_state == CALL_MAIN:
             current_state = MENU
             main(screen)
+
+        if current_state == TEACHING_MODE:
+            for button in buttons[-1:]:
+                # Check if the mouse pointer is over the button
+                if button.rect.collidepoint(pygame.mouse.get_pos()):
+                    button.hovered = True
+                else:
+                    button.hovered = False
+
+                # Draw the button with appropriate color
+                if button.hovered:
+                    button.draw_hovered(screen, FONT_COLOR)
+                else:
+                    button.draw(screen, FONT_COLOR)
 
         pygame.display.update()
 
