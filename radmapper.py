@@ -111,7 +111,7 @@ def draw_counts(counts, x, y, screen):
 
 def draw_menu(FONT_SIZE, SCREEN_WIDTH, SCREEN_HEIGHT, screen, trefoil_image):
     font = pygame.font.Font("font/PixeloidMono-d94EV.ttf", 2 * FONT_SIZE)
-    text1 = font.render("Radmapper V1.5", True, (255, 105, 180))
+    text1 = font.render("Radmapper V1.6", True, (255, 105, 180))
     screen.blit(text1,
                 (SCREEN_WIDTH // 2 - text1.get_width() // 2, SCREEN_HEIGHT - (SCREEN_HEIGHT / 70) * text1.get_height()))
     screen.blit(trefoil_image, (SCREEN_WIDTH // 2 - trefoil_image.get_width() // 2, SCREEN_HEIGHT - (
@@ -140,7 +140,7 @@ def decrease_volume(current_volume):
 
 
 def main(screen):
-    pygame.display.set_caption("Radmapper V1.5 (now fullscreen!)")
+    pygame.display.set_caption("Radmapper V1.6 (now with teaching mode!)")
 
     SCREEN_HEIGHT = screen.get_height()
     SCREEN_WIDTH = screen.get_width()
@@ -586,7 +586,7 @@ def main(screen):
             current_state = MENU
             main(screen)
 
-        if current_state == TEACHING_MODE:
+        if current_state == TEACHING_MODE or current_state == AERIAL_MAPPING or current_state == GROUND_MAPPING:
             for button in buttons[-1:]:
                 # Check if the mouse pointer is over the button
                 if button.rect.collidepoint(pygame.mouse.get_pos()):
