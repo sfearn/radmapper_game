@@ -111,7 +111,7 @@ def draw_counts(counts, x, y, screen):
 
 def draw_menu(FONT_SIZE, SCREEN_WIDTH, SCREEN_HEIGHT, screen, trefoil_image):
     font = pygame.font.Font("font/PixeloidMono-d94EV.ttf", 2 * FONT_SIZE)
-    text1 = font.render("Radmapper V1.5", True, (255, 105, 180))
+    text1 = font.render("Radmapper V1.6", True, (255, 105, 180))
     screen.blit(text1,
                 (SCREEN_WIDTH // 2 - text1.get_width() // 2, SCREEN_HEIGHT - (SCREEN_HEIGHT / 70) * text1.get_height()))
     screen.blit(trefoil_image, (SCREEN_WIDTH // 2 - trefoil_image.get_width() // 2, SCREEN_HEIGHT - (
@@ -128,19 +128,19 @@ def draw_show_maps(screen, SCREEN_WIDTH, SCREEN_HEIGHT, FONT_SIZE):
 
 
 def increase_volume(current_volume):
-    current_volume = min(1.0, current_volume + 0.05)  # Increase by 10%
+    current_volume = min(1.0, current_volume + 0.01)  # Increase by 1%
     pygame.mixer.music.set_volume(current_volume)
     return current_volume
 
 
 def decrease_volume(current_volume):
-    current_volume = max(0.0, current_volume - 0.05)  # Decrease by 10%
+    current_volume = max(0.0, current_volume - 0.01)  # Decrease by 1%
     pygame.mixer.music.set_volume(current_volume)
     return current_volume
 
 
 def main(screen):
-    pygame.display.set_caption("Radmapper V1.5 (now fullscreen!)")
+    pygame.display.set_caption("Radmapper V1.6 (now with teaching mode!)")
 
     SCREEN_HEIGHT = screen.get_height()
     SCREEN_WIDTH = screen.get_width()
@@ -195,7 +195,7 @@ def main(screen):
         Button("Return to Menu", SCREEN_WIDTH - 210, SCREEN_HEIGHT - 50, 200, 40, CALL_MAIN),
     ]
 
-    current_volume = 0.5  # Initial music volume
+    current_volume = 0.1  # Initial music volume
 
     clock = pygame.time.Clock()
     car_x, car_y = GRID_WIDTH // 2, GRID_HEIGHT - 2
@@ -383,15 +383,15 @@ def main(screen):
             current_volume = increase_volume(current_volume)
 
         if current_state == MENU:
-            if prev_state != current_state:
+            if prev_state != current_state and (prev_state != SHOW_MAPS or prev_state != SHOW_SOURCE):
                 # Countdown timer setup
                 start_time = pygame.time.get_ticks()  # Get the initial start time in milliseconds
                 pygame.mixer.music.stop()
                 pygame.mixer.music.load("music/menu.mp3")  # Replace "music.mp3" with your music file's path
                 pygame.mixer.music.play(-1)  # -1 plays the music in an infinite loop
-                pygame.mixer.music.set_volume(0.5)
+                pygame.mixer.music.set_volume(current_volume)
 
-        if current_state == GROUND_MAPPING or TEACHING_MODE:
+        if current_state == GROUND_MAPPING or current_state == TEACHING_MODE:
             if prev_state != current_state:
                 if current_state == TEACHING_MODE:
                     source_x, source_y = GRID_WIDTH // 2, GRID_HEIGHT // 2
@@ -586,7 +586,7 @@ def main(screen):
             current_state = MENU
             main(screen)
 
-        if current_state == TEACHING_MODE:
+        if current_state == TEACHING_MODE or current_state == AERIAL_MAPPING or current_state == GROUND_MAPPING:
             for button in buttons[-1:]:
                 # Check if the mouse pointer is over the button
                 if button.rect.collidepoint(pygame.mouse.get_pos()):
