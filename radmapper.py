@@ -281,25 +281,20 @@ def main(screen):
 
     simple_walls = []
 
-    left_wall_x = GRID_WIDTH // 2 - 6
+    left_wall_x = GRID_WIDTH // 2 - 2
     left_wall_y = [i for i in range(GRID_HEIGHT // 2 - 1, GRID_HEIGHT // 2 + 2)]
     for i in left_wall_y:
         simple_walls.append((left_wall_x, i))
 
-    right_wall_x = GRID_WIDTH // 2 + 6
+    right_wall_x = GRID_WIDTH // 2 + 2
     right_wall_y = [i for i in range(GRID_HEIGHT // 2 - 1, GRID_HEIGHT // 2 + 2)]
     for i in right_wall_y:
         simple_walls.append((right_wall_x, i))
 
-    front_wall_y = GRID_HEIGHT//2 - 6
+    front_wall_y = GRID_HEIGHT//2 - 2
     front_wall_x = [i for i in range(GRID_WIDTH // 2 - 1 , GRID_WIDTH // 2 + 2)]
     for i in front_wall_x:
         simple_walls.append((i, front_wall_y))
-
-    back_wall_y = GRID_HEIGHT//2 + 6
-    back_wall_x = [i for i in range(GRID_WIDTH // 2 - 1, GRID_WIDTH // 2 + 2)]
-    for i in back_wall_x:
-        simple_walls.append((i, back_wall_y))
 
     game_over = False
     prev_state = 10
