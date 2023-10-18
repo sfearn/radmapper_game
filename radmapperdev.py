@@ -502,16 +502,26 @@ def main(screen):
 
         if current_state == GAME_OVER:
             if heatmap_image is None:
+                if extension == "aerial":
+                    max_v = 150
+                else:
+                    max_v = 10000
                 # Save the heatmap plot as an image
                 plt.Figure(figsize=(GRID_HEIGHT, GRID_HEIGHT))
-                plt.imshow(count_data + 1, cmap='hot', interpolation='nearest', norm=LogNorm())
+                if extension == "aerial":
+                    plt.imshow(count_data + 1, cmap='hot', interpolation='nearest', vmin=1, vmax=max_v)
+                else:
+                    plt.imshow(count_data + 1, cmap='hot', interpolation='nearest', norm=LogNorm(vmin=1, vmax=max_v))
                 plt.colorbar().set_label('Radiation Intensity (counts per second)')
                 plt.title('Your Radiation Heat Map')
                 plt.axis('off')
                 plt.savefig(f'plots/heatmap_{extension}.png')  # Save the plot as an image
                 plt.close()
                 # show source
-                plt.imshow(count_data + 1, cmap='hot', interpolation='nearest', norm=LogNorm())
+                if extension == "aerial":
+                    plt.imshow(count_data + 1, cmap='hot', interpolation='nearest', vmin=1, vmax=max_v)
+                else:
+                    plt.imshow(count_data + 1, cmap='hot', interpolation='nearest', norm=LogNorm(vmin=1, vmax=max_v))
                 plt.colorbar().set_label('Radiation Intensity (counts per second)')
                 plt.title(f'Your {extension} radiation heat map')
                 plt.scatter(source_x, source_y, c='limegreen', s=100)
