@@ -190,7 +190,7 @@ def main(screen):
         Button("Aerial Mapping", SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT // 2 + 10, 200, 40, AERIAL_MAPPING),
         Button("Teaching Mode", SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT // 2 + 60, 200, 40, TEACHING_MODE),
         Button("Show Maps", SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT // 2 + 110, 200, 40, SHOW_MAPS),
-        Button("Quit", SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT // 2 + 160, 200, 40, QUIT),
+        # Button("Quit", SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT // 2 + 160, 200, 40, QUIT),
         Button("Show Source", SCREEN_WIDTH // 2 - 320, SCREEN_HEIGHT - 50, 200, 40, SHOW_SOURCE),
         Button("Return to Menu", SCREEN_WIDTH - 210, SCREEN_HEIGHT - 50, 200, 40, CALL_MAIN),
     ]
