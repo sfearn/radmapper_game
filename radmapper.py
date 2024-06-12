@@ -199,8 +199,6 @@ def main(screen):
 
     clock = pygame.time.Clock()
     car_x, car_y = GRID_WIDTH // 2, GRID_HEIGHT - 2
-    # Randomly place the source in the grid
-    source_x, source_y = random.randint(1, GRID_WIDTH - 1), random.randint(1, GRID_HEIGHT - 1)
 
     # Initialize count data for the heat map
     count_data = np.zeros((GRID_HEIGHT, GRID_WIDTH))
@@ -295,6 +293,12 @@ def main(screen):
     front_wall_x = [i for i in range(GRID_WIDTH // 2 - 1 , GRID_WIDTH // 2 + 2)]
     for i in front_wall_x:
         simple_walls.append((i, front_wall_y))
+
+    # Randomly place the source in the grid
+    source_x, source_y = random.randint(1, GRID_WIDTH - 1), random.randint(1, GRID_HEIGHT - 1)
+    # If the source is in a wall, place it again until it isn't
+    while (source_x, source_y) in building_features:
+        source_x, source_y = random.randint(1, GRID_WIDTH - 1), random.randint(1, GRID_HEIGHT - 1)
 
     game_over = False
     prev_state = 10
