@@ -39,6 +39,51 @@ def draw_wall(x, y, wall_image, GRID_SIZE, screen):
     screen.blit(wall_image, (x * GRID_SIZE, y * GRID_SIZE))
 
 
+def counts_to_hot_rgb_array(counts, min_count, max_count):
+    """
+    Convert a 2D array of counts to an array of RGB values corresponding to the 'hot' colormap.
+
+    Parameters:
+    - counts: A 2D numpy array of counts to be converted.
+    - min_count: The minimum count (corresponding to black).
+    - max_count: The maximum count (corresponding to white).
+
+    Returns:
+    - A 3D numpy array where the last dimension is 3, representing the RGB values.
+    """
+    # Normalize the counts to the range [0, 1]
+    normalized = (counts - min_count) / (max_count - min_count)
+    normalized = np.clip(normalized, 0, 1)  # Clamp to [0, 1]
+
+    # Initialize the RGB arrays
+    r = np.zeros_like(normalized)
+    g = np.zeros_like(normalized)
+    b = np.zeros_like(normalized)
+
+    # Define the segments
+    segment1 = normalized < 1 / 3
+    segment2 = (normalized >= 1 / 3) & (normalized < 2 / 3)
+    segment3 = normalized >= 2 / 3
+
+    # Apply the colormap to each segment
+    r[segment1] = (normalized[segment1] * 3) * 255
+    r[segment2] = 255
+    r[segment3] = 255
+
+    g[segment1] = 0
+    g[segment2] = ((normalized[segment2] - 1 / 3) * 3) * 255
+    g[segment3] = 255
+
+    b[segment1] = 0
+    b[segment2] = 0
+    b[segment3] = ((normalized[segment3] - 2 / 3) * 3) * 255
+
+    # Stack the RGB arrays along the last dimension to form the final 3D array
+    rgb_array = np.stack((r, g, b), axis=-1).astype(np.uint8)
+
+    return rgb_array
+
+
 def has_line_of_sight(source_x, source_y, target_x, target_y, wall_positions):
     dx = target_x - source_x
     dy = target_y - source_y
@@ -194,6 +239,11 @@ def main(screen):
         Button("Return to Menu", SCREEN_WIDTH - 210, SCREEN_HEIGHT - 50, 200, 40, CALL_MAIN),
     ]
 
+    menu_buttons = buttons[:4]
+    in_game_buttons = [buttons[-1]]
+    end_game_buttons = buttons[4:]
+    shown_source_buttons = [buttons[5]]
+
     current_volume = 0.1  # Initial music volume
 
     clock = pygame.time.Clock()
@@ -335,28 +385,28 @@ def main(screen):
 
             if current_state == MENU:
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                    for button in buttons:
+                    for button in menu_buttons:
                         if button.rect.collidepoint(event.pos):
                             current_state = button.action
             if current_state == GAME_OVER:
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                    for button in buttons[5:]:
+                    for button in end_game_buttons:
                         if button.rect.collidepoint(event.pos):
                             current_state = button.action
             if current_state == SHOW_SOURCE or current_state == SHOW_MAPS:
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                    for button in buttons[6:]:
+                    for button in shown_source_buttons:
                         if button.rect.collidepoint(event.pos):
                             current_state = button.action
             if current_state == GROUND_MAPPING or current_state == AERIAL_MAPPING or current_state == TEACHING_MODE:
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                    for button in buttons[6:]:
+                    for button in in_game_buttons:
                         if button.rect.collidepoint(event.pos):
                             current_state = button.action
 
             if current_state == MENU:
                 draw_grass(GRID_SIZE, GRID_WIDTH, GRID_HEIGHT, screen, grass_image)
-                for button in buttons[:4]:
+                for button in menu_buttons:
                     # Check if the mouse pointer is over the button
                     if button.rect.collidepoint(pygame.mouse.get_pos()):
                         button.hovered = True
@@ -536,7 +586,7 @@ def main(screen):
             screen.blit(heatmap_image, (0, 0))
 
         if current_state == GAME_OVER:
-            for button in buttons[-2:]:
+            for button in end_game_buttons:
                 # Check if the mouse pointer is over the button
                 if button.rect.collidepoint(pygame.mouse.get_pos()):
                     button.hovered = True
@@ -549,7 +599,7 @@ def main(screen):
                 else:
                     button.draw(screen, FONT_COLOR)
         elif current_state == SHOW_SOURCE:
-            for button in buttons[-1:]:
+            for button in shown_source_buttons:
                 # Check if the mouse pointer is over the button
                 if button.rect.collidepoint(pygame.mouse.get_pos()):
                     button.hovered = True
@@ -564,7 +614,7 @@ def main(screen):
 
         if current_state == SHOW_MAPS:
             draw_show_maps(screen, SCREEN_WIDTH, SCREEN_HEIGHT, FONT_SIZE)
-            for button in buttons[-1:]:
+            for button in shown_source_buttons:
                 # Check if the mouse pointer is over the button
                 if button.rect.collidepoint(pygame.mouse.get_pos()):
                     button.hovered = True
@@ -593,7 +643,7 @@ def main(screen):
             main(screen)
 
         if current_state == TEACHING_MODE or current_state == AERIAL_MAPPING or current_state == GROUND_MAPPING:
-            for button in buttons[-1:]:
+            for button in in_game_buttons:
                 # Check if the mouse pointer is over the button
                 if button.rect.collidepoint(pygame.mouse.get_pos()):
                     button.hovered = True
@@ -625,5 +675,6 @@ if __name__ == "__main__":
 
     # Create the screen
     infoObject = pygame.display.Info()
-    screen = pygame.display.set_mode((infoObject.current_w, infoObject.current_h), pygame.RESIZABLE)
+    #screen = pygame.display.set_mode((infoObject.current_w, infoObject.current_h), pygame.RESIZABLE)
+    screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
     main(screen)
