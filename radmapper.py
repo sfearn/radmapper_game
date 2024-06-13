@@ -180,7 +180,7 @@ def main(screen):
     source_image = pygame.transform.scale(trefoil_image, (CELL_SIZE, CELL_SIZE))
 
     # Game states
-    MENU, GROUND_MAPPING, AERIAL_MAPPING, TEACHING_MODE, GAME_OVER, SHOW_SOURCE, CALL_MAIN, SHOW_MAPS, QUIT = 0, 1, 2, 3, 4, 5, 6, 7, 8
+    MENU, GROUND_MAPPING, AERIAL_MAPPING, TEACHING_MODE, GAME_OVER, SHOW_SOURCE, CALL_MAIN, SHOW_MAPS = 0, 1, 2, 3, 4, 5, 6, 7
 
     current_state = MENU
 
@@ -190,7 +190,6 @@ def main(screen):
         Button("Aerial Mapping", SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT // 2 + 10, 200, 40, AERIAL_MAPPING),
         Button("Teaching Mode", SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT // 2 + 60, 200, 40, TEACHING_MODE),
         Button("Show Maps", SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT // 2 + 110, 200, 40, SHOW_MAPS),
-        # Button("Quit", SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT // 2 + 160, 200, 40, QUIT),
         Button("Show Source", SCREEN_WIDTH // 2 - 320, SCREEN_HEIGHT - 50, 200, 40, SHOW_SOURCE),
         Button("Return to Menu", SCREEN_WIDTH - 210, SCREEN_HEIGHT - 50, 200, 40, CALL_MAIN),
     ]
@@ -309,9 +308,6 @@ def main(screen):
         keys = pygame.key.get_pressed()
 
         for event in pygame.event.get():
-            if current_state == QUIT:
-                pygame.quit()
-                sys.exit()
             if event.type == pygame.VIDEORESIZE:
                 # There's some code to add back window content here.
                 screen = pygame.display.set_mode((event.w, event.h),
@@ -360,7 +356,7 @@ def main(screen):
 
             if current_state == MENU:
                 draw_grass(GRID_SIZE, GRID_WIDTH, GRID_HEIGHT, screen, grass_image)
-                for button in buttons[:5]:
+                for button in buttons[:4]:
                     # Check if the mouse pointer is over the button
                     if button.rect.collidepoint(pygame.mouse.get_pos()):
                         button.hovered = True
@@ -375,7 +371,8 @@ def main(screen):
                 draw_menu(FONT_SIZE, SCREEN_WIDTH, SCREEN_HEIGHT, screen, trefoil_image)
 
         if keys[pygame.K_ESCAPE]:
-            current_state = QUIT
+            pygame.quit()
+            sys.exit()
         if keys[pygame.K_LEFTBRACKET]:
             current_volume = decrease_volume(current_volume)
         if keys[pygame.K_RIGHTBRACKET]:
