@@ -3,8 +3,11 @@ import sys
 import time
 import random
 import math
+import os
 import numpy as np
 import matplotlib.pyplot as plt
+
+os.makedirs("plots", exist_ok=True)
 
 
 class Button:
